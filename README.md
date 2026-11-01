@@ -114,7 +114,7 @@ For developers and security analysts who want to inspect the source code, custom
 
 #### Step 1: Clone the repository
 ```powershell
-git clone https://github.com/your-org/anzen-security-watcher.git
+git clone https://github.com/sdozono/Anzen-Security-Watcher.git
 cd anzen-security-watcher
 ```
 

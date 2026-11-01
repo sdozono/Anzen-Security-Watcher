@@ -114,7 +114,7 @@ Para desarrolladores e investigadores de seguridad que deseen inspeccionar el c√
 
 #### 1. Clonar el repositorio
 ```powershell
-git clone https://github.com/your-org/anzen-security-watcher.git
+git clone git clone https://github.com/sdozono/Anzen-Security-Watcher.git
 cd anzen-security-watcher
 ```
 

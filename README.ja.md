@@ -115,7 +115,7 @@ Win32 / NT ネイティブ API による超高速・低負荷な監視と、Chat
 
 #### 1. リポジトリのクローン
 ```powershell
-git clone https://github.com/your-org/anzen-security-watcher.git
+git clone https://github.com/sdozono/Anzen-Security-Watcher.git
 cd anzen-security-watcher
 ```
 

@@ -114,7 +114,7 @@
 
 #### 1. 克隆代码仓库
 ```powershell
-git clone git clone https://github.com/sdozono/Anzen-Security-Watcher.git
+git clone https://github.com/sdozono/Anzen-Security-Watcher.git
 cd anzen-security-watcher
 ```
 

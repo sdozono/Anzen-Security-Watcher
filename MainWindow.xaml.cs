@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 using AnzenSecurityWatcher.Models;
@@ -25,6 +27,8 @@ public partial class MainWindow : Window
     private bool _isPaused = false;
     private bool _isScanning = false;
     private bool _showingPostureChecklist = false;
+    private bool _isNetworkPaused = false;
+    private bool _isProcessPaused = false;
 
     private List<NetworkConnectionItem> _latestConnections = new();
     private List<ScreenShareDetectionItem> _latestScreenShares = new();
@@ -38,6 +42,7 @@ public partial class MainWindow : Window
     private WinForms.NotifyIcon? _notifyIcon;
     private AlertPopupWindow? _alertPopupWindow;
     private SettingsWindow? _settingsWindow;
+    private AboutWindow? _aboutWindow;
 
     public ScanIntervalMode ScanIntervalOption { get; private set; } = ScanIntervalMode.Fast;
     public bool IncludeLoopbackOption { get; private set; } = false;
@@ -239,6 +244,9 @@ public partial class MainWindow : Window
             ? Loc.T("▶️ Resume Monitoring(_P)", "▶️ 恢复监控(_P)", "▶️ Reanudar monitoreo(_P)", "▶️ 監視の再開(_P)")
             : Loc.T("⏸️ Pause Monitoring(_P)", "⏸️ 暂停监控(_P)", "⏸️ Pausar monitoreo(_P)", "⏸️ 監視の一時停止(_P)");
 
+        // Update Pause Buttons in Tab 0 & Tab 2
+        UpdatePauseButtonsState();
+
         // Default User Note in Tab 4
         if (UserNoteTextBox != null && (string.IsNullOrWhiteSpace(UserNoteTextBox.Text) || DefaultUserNotes.Contains(UserNoteTextBox.Text.Trim())))
         {
@@ -345,6 +353,11 @@ public partial class MainWindow : Window
                 ShowMainWindow();
                 OpenSettingsMenuItem_Click(this, new RoutedEventArgs());
             }));
+            menu.Items.Add(Loc.T("ℹ️ Version & About...", "ℹ️ 关于与版本信息...", "ℹ️ Acerca de / Versión...", "ℹ️ バージョン情報..."), null, (_, _) => Dispatcher.Invoke(() =>
+            {
+                ShowMainWindow();
+                OpenAboutMenuItem_Click(this, new RoutedEventArgs());
+            }));
 
             var toolsMenu = new WinForms.ToolStripMenuItem(Loc.T("🧰 Windows Tools", "🧰 启动 Windows 工具", "🧰 Herramientas de Windows", "🧰 Windowsツール起動"));
             toolsMenu.DropDownItems.Add(Loc.T("📊 Task Manager", "📊 任务管理器", "📊 Administrador de tareas", "📊 タスクマネージャー"), null, (_, _) => Dispatcher.Invoke(() => LaunchSystemTool("taskmgr.exe", "Task Manager")));
@@ -432,10 +445,16 @@ public partial class MainWindow : Window
             _latestFindings = scanResult.findings;
             _latestPosture = scanResult.posture;
 
-            RebuildCountrySummaries();
-            ApplyNetworkFilter();
+            if (!_isNetworkPaused)
+            {
+                RebuildCountrySummaries();
+                ApplyNetworkFilter();
+            }
             UpdateScreenShareTabAndAlerts();
-            ApplyProcessFilter();
+            if (!_isProcessPaused)
+            {
+                ApplyProcessFilter();
+            }
             UpdateSystemDefenseTab();
             if (AiLogsDataGrid.ItemsSource == null)
             {
@@ -629,7 +648,7 @@ public partial class MainWindow : Window
                 c.RiskReason.Contains(search, StringComparison.OrdinalIgnoreCase));
         }
 
-        NetworkDataGrid.ItemsSource = query.ToList();
+        SetItemsSourcePreservingSort(NetworkDataGrid, query.ToList());
     }
 
     private void CountryCardButton_Click(object sender, RoutedEventArgs e)
@@ -673,21 +692,21 @@ public partial class MainWindow : Window
         }
     }
 
-    private void CopyRemoteIpButton_Click(object sender, RoutedEventArgs e)
+    private void OpenIpLookupButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement fe && fe.DataContext is NetworkConnectionItem item)
         {
-            try
+            var dialog = new IpLookupWindow(item)
             {
-                System.Windows.Clipboard.SetText($"{item.RemoteAddress}:{item.RemotePort} ({item.CountryDisplay} - {item.Organization})");
-                FooterStatusText.Text = Loc.T(
-                    $"📋 Copied: {item.RemoteAddress}:{item.RemotePort}",
-                    $"📋 已复制: {item.RemoteAddress}:{item.RemotePort}",
-                    $"📋 Copiado: {item.RemoteAddress}:{item.RemotePort}",
-                    $"📋 コピー: {item.RemoteAddress}:{item.RemotePort}");
-            }
-            catch { }
+                Owner = this
+            };
+            dialog.ShowDialog();
         }
+    }
+
+    private void CopyRemoteIpButton_Click(object sender, RoutedEventArgs e)
+    {
+        OpenIpLookupButton_Click(sender, e);
     }
 
     // ====================================================================
@@ -1072,7 +1091,7 @@ public partial class MainWindow : Window
         }
 
         var list = query.ToList();
-        ProcessDataGrid.ItemsSource = list;
+        SetItemsSourcePreservingSort(ProcessDataGrid, list);
         if (ProcessSummaryCountText != null)
         {
             ProcessSummaryCountText.Text = Loc.T(
@@ -1521,6 +1540,23 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OpenAboutMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (_aboutWindow == null || !_aboutWindow.IsLoaded)
+        {
+            _aboutWindow = new AboutWindow
+            {
+                Owner = this
+            };
+            _aboutWindow.Closed += (_, _) => _aboutWindow = null;
+            _aboutWindow.Show();
+        }
+        else
+        {
+            _aboutWindow.Activate();
+        }
+    }
+
     private void SwitchTab0_Click(object sender, RoutedEventArgs e) => MainTabControl.SelectedIndex = 0;
     private void SwitchTab1_Click(object sender, RoutedEventArgs e) => MainTabControl.SelectedIndex = 1;
     private void SwitchTab2_Click(object sender, RoutedEventArgs e) => MainTabControl.SelectedIndex = 2;
@@ -1586,6 +1622,112 @@ public partial class MainWindow : Window
     private async void ManualRefreshButton_Click(object sender, RoutedEventArgs e)
     {
         await RunScanCycleAsync();
+    }
+
+    private void PauseNetworkUpdateButton_Click(object sender, RoutedEventArgs e)
+    {
+        _isNetworkPaused = !_isNetworkPaused;
+        UpdatePauseButtonsState();
+        if (!_isNetworkPaused)
+        {
+            RebuildCountrySummaries();
+            ApplyNetworkFilter();
+        }
+    }
+
+    private void PauseProcessUpdateButton_Click(object sender, RoutedEventArgs e)
+    {
+        _isProcessPaused = !_isProcessPaused;
+        UpdatePauseButtonsState();
+        if (!_isProcessPaused)
+        {
+            ApplyProcessFilter();
+        }
+    }
+
+    private void UpdatePauseButtonsState()
+    {
+        if (PauseNetworkUpdateButton != null)
+        {
+            if (_isNetworkPaused)
+            {
+                PauseNetworkUpdateButton.Content = Loc.T("▶️ Resume Updates", "▶️ 恢复刷新", "▶️ Reanudar", "▶️ 更新再開");
+                PauseNetworkUpdateButton.ToolTip = Loc.T(
+                    "Resume automatic table updates and refresh with latest data",
+                    "恢复表格自动刷新并立即同步最新数据",
+                    "Reanudar actualización automática y sincronizar",
+                    "自動更新を再開し、最新データへ同期します");
+                PauseNetworkUpdateButton.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(60, 234, 179, 8));
+            }
+            else
+            {
+                PauseNetworkUpdateButton.Content = Loc.T("⏸️ Pause Updates", "⏸️ 暂停刷新", "⏸️ Pausar", "⏸️ 更新一時停止");
+                PauseNetworkUpdateButton.ToolTip = Loc.T(
+                    "Pause automatic table updates to inspect or sort items without disruption",
+                    "暂停表格自动刷新，以便排序或仔细排查",
+                    "Pausar actualización automática para ordenar o inspeccionar",
+                    "自動更新を一時停止し、ソート順や選択行を固定して確認します");
+                PauseNetworkUpdateButton.ClearValue(BackgroundProperty);
+            }
+        }
+
+        if (PauseProcessUpdateButton != null)
+        {
+            if (_isProcessPaused)
+            {
+                PauseProcessUpdateButton.Content = Loc.T("▶️ Resume Updates", "▶️ 恢复刷新", "▶️ Reanudar", "▶️ 更新再開");
+                PauseProcessUpdateButton.ToolTip = Loc.T(
+                    "Resume automatic table updates and refresh with latest data",
+                    "恢复表格自动刷新并立即同步最新数据",
+                    "Reanudar actualización automática y sincronizar",
+                    "自動更新を再開し、最新データへ同期します");
+                PauseProcessUpdateButton.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(60, 234, 179, 8));
+            }
+            else
+            {
+                PauseProcessUpdateButton.Content = Loc.T("⏸️ Pause Updates", "⏸️ 暂停刷新", "⏸️ Pausar", "⏸️ 更新一時停止");
+                PauseProcessUpdateButton.ToolTip = Loc.T(
+                    "Pause automatic table updates to inspect or sort items without disruption",
+                    "暂停表格自动刷新，以便排序或仔细排查",
+                    "Pausar actualización automática para ordenar o inspeccionar",
+                    "自動更新を一時停止し、ソート順や選択行を固定して確認します");
+                PauseProcessUpdateButton.ClearValue(BackgroundProperty);
+            }
+        }
+    }
+
+    private static void SetItemsSourcePreservingSort(DataGrid grid, System.Collections.IEnumerable items)
+    {
+        if (grid == null) return;
+
+        var sortDescriptions = grid.Items.SortDescriptions
+            .Select(sd => new SortDescription(sd.PropertyName, sd.Direction))
+            .ToList();
+
+        var selectedItem = grid.SelectedItem;
+
+        grid.ItemsSource = items;
+
+        if (sortDescriptions.Count > 0 && grid.ItemsSource != null)
+        {
+            var view = CollectionViewSource.GetDefaultView(grid.ItemsSource);
+            if (view != null)
+            {
+                using (view.DeferRefresh())
+                {
+                    view.SortDescriptions.Clear();
+                    foreach (var sd in sortDescriptions)
+                    {
+                        view.SortDescriptions.Add(sd);
+                    }
+                }
+            }
+        }
+
+        if (selectedItem != null)
+        {
+            grid.SelectedItem = selectedItem;
+        }
     }
 
     public void SetLanguage(AppLanguage language)

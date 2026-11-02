@@ -9,7 +9,7 @@
     <?define ProjectRoot = "$(sys.SOURCEFILEDIR).." ?>
   <?endif?>
   <?ifndef ProductVersion ?>
-    <?define ProductVersion = "1.0.0.4" ?>
+    <?define ProductVersion = "1.0.1.3" ?>
   <?endif?>
 
   <Package Name="Anzen Security Watcher"

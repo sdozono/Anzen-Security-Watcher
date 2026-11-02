@@ -169,6 +169,9 @@
                         <MenuItem Header="{DynamicResource Loc_Tool_NetPlWiz}" Tag="netplwiz.exe" Click="LaunchWindowsTool_Click"/>
                     </MenuItem>
                     <MenuItem Header="{DynamicResource Loc_Menu_Settings}" Click="OpenSettingsMenuItem_Click"/>
+                    <MenuItem Header="{DynamicResource Loc_Menu_Help}">
+                        <MenuItem Header="{DynamicResource Loc_Menu_Help_About}" Click="OpenAboutMenuItem_Click"/>
+                    </MenuItem>
                 </Menu>
 
                 <!-- 右側コンパクトKPIサマリー -->
@@ -303,22 +306,30 @@
 
                     <!-- 検索・フィルタバー -->
                     <Border Grid.Row="1" Background="{DynamicResource HeaderBgBrush}" BorderBrush="{DynamicResource BorderBrushPrimary}" BorderThickness="0,0,0,1" Padding="8,5">
-                        <WrapPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Loc_Tab0_SearchLabel}" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11.5"/>
-                            <TextBox x:Name="NetworkSearchBox" Width="160" Padding="5,2" FontSize="11.5"
-                                     Background="{DynamicResource InputBgBrush}" Foreground="{DynamicResource TextPrimaryBrush}" BorderBrush="{DynamicResource BorderBrushSecondary}"
-                                     VerticalContentAlignment="Center"
-                                     TextChanged="NetworkFilter_Changed"/>
-                            <CheckBox x:Name="ShowOnlyRiskyNetworkCheck" Content="{DynamicResource Loc_Tab0_RiskyOnly}"
-                                      Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11.5" VerticalAlignment="Center" Margin="10,0,0,0"
-                                      Checked="NetworkFilter_Changed" Unchecked="NetworkFilter_Changed"/>
-                            <CheckBox x:Name="IncludeUdpToolbarCheck" Content="{DynamicResource Loc_Tab0_ShowUdp}"
-                                      IsChecked="True"
-                                      Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11.5" VerticalAlignment="Center" Margin="10,0,0,0"
-                                      Click="IncludeUdpToolbarCheck_Click"/>
-                            <TextBlock x:Name="ActiveCountryFilterLabel" Text="Showing: All Countries"
-                                       Foreground="{DynamicResource TextAccentBrush}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center" Margin="12,0,0,0"/>
-                        </WrapPanel>
+                        <DockPanel LastChildFill="True">
+                            <Button x:Name="PauseNetworkUpdateButton" DockPanel.Dock="Right"
+                                    Style="{StaticResource ModernButton}" Padding="8,2" FontSize="11.5" Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Content="{DynamicResource Loc_Btn_PauseUpdate}"
+                                    ToolTip="{DynamicResource Loc_Btn_PauseUpdate_Tooltip}"
+                                    Click="PauseNetworkUpdateButton_Click"/>
+                            <WrapPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Loc_Tab0_SearchLabel}" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,5,0" FontSize="11.5"/>
+                                <TextBox x:Name="NetworkSearchBox" Width="160" Padding="5,2" FontSize="11.5"
+                                         Background="{DynamicResource InputBgBrush}" Foreground="{DynamicResource TextPrimaryBrush}" BorderBrush="{DynamicResource BorderBrushSecondary}"
+                                         VerticalContentAlignment="Center"
+                                         TextChanged="NetworkFilter_Changed"/>
+                                <CheckBox x:Name="ShowOnlyRiskyNetworkCheck" Content="{DynamicResource Loc_Tab0_RiskyOnly}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11.5" VerticalAlignment="Center" Margin="10,0,0,0"
+                                          Checked="NetworkFilter_Changed" Unchecked="NetworkFilter_Changed"/>
+                                <CheckBox x:Name="IncludeUdpToolbarCheck" Content="{DynamicResource Loc_Tab0_ShowUdp}"
+                                          IsChecked="True"
+                                          Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11.5" VerticalAlignment="Center" Margin="10,0,0,0"
+                                          Click="IncludeUdpToolbarCheck_Click"/>
+                                <TextBlock x:Name="ActiveCountryFilterLabel" Text="Showing: All Countries"
+                                           Foreground="{DynamicResource TextAccentBrush}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                            </WrapPanel>
+                        </DockPanel>
                     </Border>
 
                     <!-- 通信リスト DataGrid -->
@@ -342,7 +353,8 @@
                                                     Click="AddNetworkToAiButton_Click"/>
                                             <Button Content="{DynamicResource Loc_Btn_CopyIp}" Style="{StaticResource ModernButton}"
                                                     Padding="6,1" FontSize="10.5"
-                                                    Click="CopyRemoteIpButton_Click"/>
+                                                    ToolTip="{DynamicResource Loc_Btn_CopyIp_Tooltip}"
+                                                    Click="OpenIpLookupButton_Click"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -419,43 +431,51 @@
 
                     <!-- フィルタ・操作バー -->
                     <Border Grid.Row="0" Background="{DynamicResource HeaderBgBrush}" BorderBrush="{DynamicResource BorderBrushPrimary}" BorderThickness="0,0,0,1" Padding="8,6">
-                        <WrapPanel VerticalAlignment="Center">
-                            <RadioButton x:Name="ProcFilterAnomalyRadio" Content="{DynamicResource Loc_Tab2_FilterAnomaly}"
-                                         IsChecked="True" Foreground="{DynamicResource TextStrongBrush}" FontWeight="SemiBold" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
-                                         Checked="ProcessFilter_Changed"/>
-                            <RadioButton x:Name="ProcFilterTransientRadio" Content="{DynamicResource Loc_Tab2_FilterTransient}"
-                                         Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
-                                         Checked="ProcessFilter_Changed"/>
-                            <RadioButton x:Name="ProcFilterPeriodicRadio" Content="{DynamicResource Loc_Tab2_FilterPeriodic}"
-                                         Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
-                                         Checked="ProcessFilter_Changed"/>
-                            <RadioButton x:Name="ProcFilterRareRadio" Content="{DynamicResource Loc_Tab2_FilterRare}"
-                                         Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
-                                         Checked="ProcessFilter_Changed"/>
-                            <RadioButton x:Name="ProcFilterAllRadio" Content="{DynamicResource Loc_Tab2_FilterAll}"
-                                         Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
-                                         Checked="ProcessFilter_Changed"/>
-                            <CheckBox x:Name="ExcludeMicrosoftProcCheck" Content="{DynamicResource Loc_Tab2_ExcludeMs}"
-                                      IsChecked="True"
-                                      Foreground="{DynamicResource TextStrongBrush}" FontWeight="SemiBold" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
-                                      Checked="ProcessFilter_Changed" Unchecked="ProcessFilter_Changed"/>
-                            <CheckBox x:Name="IncludeHistoricalProcCheck" Content="{DynamicResource Loc_Tab2_IncludeHistorical}"
-                                      IsChecked="False"
-                                      Foreground="{DynamicResource TextStrongBrush}" FontWeight="SemiBold" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
-                                      Checked="ProcessFilter_Changed" Unchecked="ProcessFilter_Changed"/>
+                        <DockPanel LastChildFill="True">
+                            <Button x:Name="PauseProcessUpdateButton" DockPanel.Dock="Right"
+                                    Style="{StaticResource ModernButton}" Padding="8,2" FontSize="11.5" Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Content="{DynamicResource Loc_Btn_PauseUpdate}"
+                                    ToolTip="{DynamicResource Loc_Btn_PauseUpdate_Tooltip}"
+                                    Click="PauseProcessUpdateButton_Click"/>
+                            <WrapPanel VerticalAlignment="Center">
+                                <RadioButton x:Name="ProcFilterAnomalyRadio" Content="{DynamicResource Loc_Tab2_FilterAnomaly}"
+                                             IsChecked="True" Foreground="{DynamicResource TextStrongBrush}" FontWeight="SemiBold" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
+                                             Checked="ProcessFilter_Changed"/>
+                                <RadioButton x:Name="ProcFilterTransientRadio" Content="{DynamicResource Loc_Tab2_FilterTransient}"
+                                             Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
+                                             Checked="ProcessFilter_Changed"/>
+                                <RadioButton x:Name="ProcFilterPeriodicRadio" Content="{DynamicResource Loc_Tab2_FilterPeriodic}"
+                                             Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
+                                             Checked="ProcessFilter_Changed"/>
+                                <RadioButton x:Name="ProcFilterRareRadio" Content="{DynamicResource Loc_Tab2_FilterRare}"
+                                             Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
+                                             Checked="ProcessFilter_Changed"/>
+                                <RadioButton x:Name="ProcFilterAllRadio" Content="{DynamicResource Loc_Tab2_FilterAll}"
+                                             Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
+                                             Checked="ProcessFilter_Changed"/>
+                                <CheckBox x:Name="ExcludeMicrosoftProcCheck" Content="{DynamicResource Loc_Tab2_ExcludeMs}"
+                                          IsChecked="True"
+                                          Foreground="{DynamicResource TextStrongBrush}" FontWeight="SemiBold" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
+                                          Checked="ProcessFilter_Changed" Unchecked="ProcessFilter_Changed"/>
+                                <CheckBox x:Name="IncludeHistoricalProcCheck" Content="{DynamicResource Loc_Tab2_IncludeHistorical}"
+                                          IsChecked="False"
+                                          Foreground="{DynamicResource TextStrongBrush}" FontWeight="SemiBold" FontSize="11.5" VerticalAlignment="Center" Margin="0,2,10,2"
+                                          Checked="ProcessFilter_Changed" Unchecked="ProcessFilter_Changed"/>
 
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,2,0,2">
-                                <Button x:Name="ScanRecentTasksButton" Content="{DynamicResource Loc_Tab2_ScanTasksBtn}"
-                                        Style="{StaticResource ModernButton}" Padding="7,2" FontSize="11" Margin="0,0,8,0"
-                                        Click="ScanRecentTasksButton_Click"/>
-                                <TextBlock Text="🔎" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="11.5"/>
-                                <TextBox x:Name="ProcessSearchBox" Width="125" Padding="4,2" FontSize="11.5"
-                                         Background="{DynamicResource InputBgBrush}" Foreground="{DynamicResource TextPrimaryBrush}" BorderBrush="{DynamicResource BorderBrushSecondary}"
-                                         TextChanged="ProcessSearchBox_TextChanged"/>
-                                <TextBlock x:Name="ProcessSummaryCountText" Text="0"
-                                           Foreground="{DynamicResource TextAccentBrush}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center" Margin="8,0,0,0"/>
-                            </StackPanel>
-                        </WrapPanel>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,2,0,2">
+                                    <Button x:Name="ScanRecentTasksButton" Content="{DynamicResource Loc_Tab2_ScanTasksBtn}"
+                                            Style="{StaticResource ModernButton}" Padding="7,2" FontSize="11" Margin="0,0,8,0"
+                                            Click="ScanRecentTasksButton_Click"/>
+                                    <TextBlock Text="🔎" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="11.5"/>
+                                    <TextBox x:Name="ProcessSearchBox" Width="125" Padding="4,2" FontSize="11.5"
+                                             Background="{DynamicResource InputBgBrush}" Foreground="{DynamicResource TextPrimaryBrush}" BorderBrush="{DynamicResource BorderBrushSecondary}"
+                                             TextChanged="ProcessSearchBox_TextChanged"/>
+                                    <TextBlock x:Name="ProcessSummaryCountText" Text="0"
+                                               Foreground="{DynamicResource TextAccentBrush}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                </StackPanel>
+                            </WrapPanel>
+                        </DockPanel>
                     </Border>
 
                     <!-- プロセス監視 DataGrid -->

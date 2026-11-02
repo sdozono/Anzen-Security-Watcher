@@ -32,6 +32,15 @@ public static class LocalizationManager
 
     public static event Action<AppLanguage>? OnLanguageChanged;
 
+    public static string GetString(string key, string fallback = "")
+    {
+        if (System.Windows.Application.Current?.Resources.Contains(key) == true)
+        {
+            return System.Windows.Application.Current.Resources[key]?.ToString() ?? fallback;
+        }
+        return fallback;
+    }
+
     public static void ApplyLanguage(AppLanguage language)
     {
         CurrentLanguage = language;
@@ -393,6 +402,32 @@ public static class LocalizationManager
                 "👥 ユーザーアカウント管理 — 不正アカウント確認 (netplwiz)");
 
             res["Loc_Menu_Settings"] = Loc.T("Settings(_S)", "设置(_S)", "Configuración(_S)", "設定(_S)");
+            res["Loc_Menu_Help"] = Loc.T("Help(_H)", "帮助(_H)", "Ayuda(_H)", "ヘルプ(_H)");
+            res["Loc_Menu_Help_About"] = Loc.T("ℹ️ About Anzen Security Watcher(_A)...", "ℹ️ 关于 Anzen Security Watcher(_A)...", "ℹ️ Acerca de Anzen Security Watcher(_A)...", "ℹ️ バージョン情報(_A)...");
+            res["Loc_Tray_About"] = Loc.T("ℹ️ Version & About...", "ℹ️ 关于与版本信息...", "ℹ️ Acerca de / Versión...", "ℹ️ バージョン情報...");
+
+            // About Window
+            res["Loc_About_Title"] = Loc.T("About Anzen Security Watcher", "关于 Anzen Security Watcher", "Acerca de Anzen Security Watcher", "バージョン情報");
+            res["Loc_About_AppDescription"] = Loc.T(
+                "Windows 11 Real-Time Security Monitor & AI Diagnosis Assistant",
+                "Windows 11 实时安全监控与 AI 诊断助手",
+                "Monitoreo de seguridad en tiempo real y asistente de diagnóstico por IA para Windows 11",
+                "Windows 11 リアルタイム・セキュリティ監視＆AI診断支援ツール");
+            res["Loc_About_Version"] = Loc.T("Version", "版本", "Versión", "バージョン");
+            res["Loc_About_Runtime"] = Loc.T(".NET Runtime", ".NET 运行环境", "Entorno .NET", ".NET 実行環境");
+            res["Loc_About_OS"] = Loc.T("Operating System", "操作系统", "Sistema Operativo", "オペレーティングシステム");
+            res["Loc_About_Architecture"] = Loc.T("Process Architecture", "进程架构", "Arquitectura de proceso", "プロセスアーキテクチャ");
+            res["Loc_About_Privilege"] = Loc.T("Privilege Level", "运行权限", "Nivel de privilegio", "実行権限レベル");
+            res["Loc_About_PrivilegeAdmin"] = Loc.T("Administrator (Elevated)", "管理员权限 (已提权)", "Administrador (Elevado)", "管理者権限 (昇格済み)");
+            res["Loc_About_PrivilegeUser"] = Loc.T("Standard User", "标准用户", "Usuario estándar", "標準ユーザー");
+            res["Loc_About_Developer"] = Loc.T("Project / Team", "项目 / 团队", "Proyecto / Equipo", "開発 / プロジェクト");
+            res["Loc_About_License"] = Loc.T("License", "开源许可", "Licencia", "ライセンス");
+            res["Loc_About_LicenseType"] = Loc.T("MIT License (Open Source)", "MIT 许可证 (开源)", "Licencia MIT (Código abierto)", "MIT License (オープンソース)");
+            res["Loc_About_GitHub"] = Loc.T("GitHub Repository", "GitHub 仓库", "Repositorio de GitHub", "GitHub リポジトリ");
+            res["Loc_About_Copyright"] = Loc.T("© 2026 Anzen Security Project. All rights reserved.", "© 2026 Anzen Security Project. 保留所有权利。", "© 2026 Anzen Security Project. Todos los derechos reservados.", "© 2026 Anzen Security Project. All rights reserved.");
+            res["Loc_About_CopyInfo"] = Loc.T("📋 Copy System Info", "📋 复制环境信息", "📋 Copiar info del sistema", "📋 環境情報をコピー");
+            res["Loc_About_Copied"] = Loc.T("System information copied to clipboard!", "系统环境信息已复制到剪贴板！", "¡Información del sistema copiada al portapapeles!", "システム環境情報をクリップボードにコピーしました！");
+            res["Loc_About_Close"] = Loc.T("Close", "关闭", "Cerrar", "閉じる");
 
             // Global Banner
             res["Loc_Banner_DetailsBtn"] = Loc.T("Details", "详情", "Detalles", "詳細");
@@ -410,7 +445,24 @@ public static class LocalizationManager
             res["Loc_Tab0_RiskyOnly"] = Loc.T("⚠️ Attention Only", "⚠️ 仅显示需注意项", "⚠️ Solo atención", "⚠️ 要注意のみ");
             res["Loc_Tab0_ShowUdp"] = Loc.T("📡 Show UDP", "📡 显示 UDP", "📡 Mostrar UDP", "📡 UDPも表示");
             res["Loc_Btn_ToAi"] = Loc.T("🤖 To AI", "🤖 问 AI", "🤖 A IA", "🤖 AIへ");
-            res["Loc_Btn_CopyIp"] = Loc.T("📋 IP", "📋 IP", "📋 IP", "📋 IP");
+            res["Loc_Btn_CopyIp"] = Loc.T("🔍 IP", "🔍 IP", "🔍 IP", "🔍 IP");
+            res["Loc_Btn_CopyIp_Tooltip"] = Loc.T(
+                "Check IP reputation & threat intelligence (AbuseIPDB, VirusTotal, etc.)",
+                "查询 IP 威胁情报与信誉（AbuseIPDB、VirusTotal 等）",
+                "Consultar inteligencia y reputación de IP (AbuseIPDB, VirusTotal, etc.)",
+                "IPアドレスの脅威インテリジェンス調査 (AbuseIPDB, VirusTotal等)");
+            res["Loc_Btn_PauseUpdate"] = Loc.T("⏸️ Pause Updates", "⏸️ 暂停刷新", "⏸️ Pausar", "⏸️ 更新一時停止");
+            res["Loc_Btn_ResumeUpdate"] = Loc.T("▶️ Resume Updates", "▶️ 恢复刷新", "▶️ Reanudar", "▶️ 更新再開");
+            res["Loc_Btn_PauseUpdate_Tooltip"] = Loc.T(
+                "Pause automatic table updates to inspect or sort items without disruption",
+                "暂停表格自动刷新，以便排序或仔细排查",
+                "Pausar actualización automática para ordenar o inspeccionar",
+                "自動更新を一時停止し、ソート順や選択行を固定して確認します");
+            res["Loc_Btn_ResumeUpdate_Tooltip"] = Loc.T(
+                "Resume automatic table updates and refresh with latest data",
+                "恢复表格自动刷新并立即同步最新数据",
+                "Reanudar actualización automática y sincronizar",
+                "自動更新を再開し、最新データへ同期します");
 
             // Tab 1: Screen Share & RDP
             res["Loc_Tab1_Header"] = Loc.T("🖥️ Screen Share & RDP", "🖥️ 屏幕共享与 RDP", "🖥️ Pantalla y RDP", "🖥️ 画面共有・RDP");
@@ -470,6 +522,69 @@ public static class LocalizationManager
                 "未勾选（默认）时，从列表中排除历史痕迹及非活跃进程。勾选后将一并在列表中显示并纳入咨询。",
                 "Sin marcar (predeterminado), los registros históricos e inactivos se excluyen de la lista. Marque para mostrarlos e incluirlos.",
                 "未チェック（原則）時は過去履歴・非稼働プロセスを一覧から除外（非表示）します。チェックを入れると過去履歴もリストアップしAI相談の選択対象に含めます。");
+
+            // IP Threat Intelligence Check Dialog
+            res["Loc_IpLookup_Title"] = Loc.T(
+                "IP Threat Intelligence Check",
+                "IP 威胁情报与信誉查询",
+                "Verificación de Inteligencia de IP",
+                "IPアドレス 脅威インテリジェンス調査");
+            res["Loc_IpLookup_Header"] = Loc.T(
+                "IP Address Threat Intelligence & Reputation Check",
+                "IP 地址威胁情报与信誉多源查询",
+                "Verificación de Inteligencia de Amenazas y Reputación de IP",
+                "IPアドレス 脅威インテリジェンス・レピュテーション調査");
+            res["Loc_IpLookup_Desc"] = Loc.T(
+                "Investigate suspicious or remote IP addresses using global threat intelligence databases. Clicking a service button will open the search result in your default browser.",
+                "使用全球权威威胁情报库查询可疑或远程 IP 地址。点击服务按钮将在默认浏览器中打开查询页面。",
+                "Investigue direcciones IP remotas o sospechosas mediante bases de datos globales de inteligencia. Al hacer clic en un botón, se abrirá la página en el navegador predeterminado.",
+                "外部セキュリティ調査サービスで対象IPアドレスの脅威・レピュテーション情報を確認します。ボタンをクリックするとデフォルトブラウザで検索結果ページが開きます。");
+            res["Loc_IpLookup_TargetIpLabel"] = Loc.T("Target IP Address:", "目标 IP 地址:", "Dirección IP objetivo:", "調査対象 IPアドレス:");
+            res["Loc_IpLookup_CopyBtn"] = Loc.T("📋 Copy IP", "📋 复制 IP", "📋 Copiar IP", "📋 IPをコピー");
+            res["Loc_IpLookup_PrivateWarning"] = Loc.T(
+                "⚠️ Note: This IP address is a private, loopback, or local network address. External threat intelligence services typically only have data for public internet IP addresses.",
+                "⚠️ 注意: 该 IP 地址属于私有/环回/本地局域网地址。外部威胁情报服务通常仅记录公网 IP 地址的数据。",
+                "⚠️ Nota: Esta dirección IP es privada, de bucle local o de red local. Los servicios externos suelen contener datos únicamente de IPs públicas.",
+                "⚠️ 注意: このIPアドレスはプライベートIP / ループバック / ローカルIPです。外部の脅威インテリジェンスサービスは通常パブリックIPのみを対象としているため、検索結果が表示されない場合があります。");
+            res["Loc_IpLookup_OpenAllBtn"] = Loc.T("🚀 Open All (7 Services)", "🚀 一键打开全部 (7 个服务)", "🚀 Abrir todos (7 servicios)", "🚀 すべてブラウザで開く (7サービス)");
+            res["Loc_IpLookup_CloseBtn"] = Loc.T("Close", "关闭", "Cerrar", "閉じる");
+
+            // Service Descriptions
+            res["Loc_Service_AbuseIpDb_Desc"] = Loc.T(
+                "Crowdsourced malicious IP reports & abuse confidence score",
+                "众包恶意 IP 举报数据库与滥用置信度评分",
+                "Base de datos colaborativa de reportes de IP maliciosas y puntuación de abuso",
+                "不正アクセス・攻撃通報データベース & Abuseスコア確認");
+            res["Loc_Service_GreyNoise_Desc"] = Loc.T(
+                "Mass internet scanner classification & malicious vs benign intent",
+                "全网扫描器特征分类与恶意/无害意图分析",
+                "Clasificación de escáneres masivos de Internet y análisis de intención",
+                "全網スキャナー識別 & 悪意/無害性判定");
+            res["Loc_Service_VirusTotal_Desc"] = Loc.T(
+                "Comprehensive detection by 70+ antivirus engines and threat feeds",
+                "聚合 70+ 家杀毒引擎与威胁情报源的综合检出",
+                "Detección exhaustiva por más de 70 motores antivirus y fuentes de amenazas",
+                "70社以上のマルウェア・セキュリティベンダー総合判定");
+            res["Loc_Service_LevelBlueOtx_Desc"] = Loc.T(
+                "LevelBlue (formerly AlienVault) Open Threat Exchange indicators",
+                "LevelBlue（原 AlienVault）开放威胁情报交换 (OTX) 指标",
+                "Indicadores de Open Threat Exchange de LevelBlue (anteriormente AlienVault)",
+                "LevelBlue (旧AlienVault) OTX オープン脅威インテリジェンス");
+            res["Loc_Service_Spamhaus_Desc"] = Loc.T(
+                "World-leading IP blocklist & reputation query for spam & botnets",
+                "全球权威的反垃圾邮件、僵尸网络与恶意 IP 黑名单查询",
+                "Consulta de lista de bloqueo y reputación de IP para spam y botnets",
+                "世界的スパム・ボットネットIPブロックリスト (DNSBL)");
+            res["Loc_Service_Talos_Desc"] = Loc.T(
+                "Global threat intelligence telemetry, web & email reputation scores",
+                "思科全球威胁遥测网络、Web 与电子邮件信誉综合评估",
+                "Telemetría de inteligencia de amenazas global de Cisco, reputación web y de correo",
+                "シスコの世界的脅威リサーチ・Web/メールレピュテーション評価");
+            res["Loc_Service_Censys_Desc"] = Loc.T(
+                "Internet-wide host scanner for open ports, services & TLS certificates",
+                "全网主机空间探测：开放端口、运行服务与 TLS 证书指纹",
+                "Escáner de hosts en toda la red para puertos abiertos, servicios y certificados TLS",
+                "インターネット公開機器調査・オープンポート & SSL証明書情報");
         }
 
         OnLanguageChanged?.Invoke(language);

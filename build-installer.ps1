@@ -43,10 +43,17 @@ if (Test-Path $PublishDir) {
 }
 
 Write-Host "[1/2] Publishing .NET 8 WPF Application..." -ForegroundColor Yellow
+$publishProps = @(
+    "-p:Version=$Version",
+    "-p:FileVersion=$MsiVersion",
+    "-p:AssemblyVersion=$MsiVersion",
+    "-p:InformationalVersion=$Version"
+)
+
 if ($SelfContained) {
-    dotnet publish "$RepoRoot\AnzenSecurityWatcher.csproj" -c Release -r win-x64 --self-contained true -o $PublishDir
+    dotnet publish "$RepoRoot\AnzenSecurityWatcher.csproj" -c Release -r win-x64 --self-contained true -o $PublishDir @publishProps
 } else {
-    dotnet publish "$RepoRoot\AnzenSecurityWatcher.csproj" -c Release -o $PublishDir --no-restore
+    dotnet publish "$RepoRoot\AnzenSecurityWatcher.csproj" -c Release -o $PublishDir @publishProps
 }
 if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed with exit code $LASTEXITCODE"
@@ -78,6 +85,16 @@ $updatedWxs = [regex]::Replace(
     [System.Text.RegularExpressions.MatchEvaluator]{ return $replacementDef }
 )
 [System.IO.File]::WriteAllText($PackageWxsPath, $updatedWxs, [System.Text.UTF8Encoding]::new($false))
+
+# AnzenSecurityWatcher.csproj のバージョンも同期
+$csprojPath = Join-Path $RepoRoot "AnzenSecurityWatcher.csproj"
+if (Test-Path $csprojPath) {
+    $csprojContent = Get-Content $csprojPath -Raw -Encoding UTF8
+    $csprojContent = [regex]::Replace($csprojContent, '<Version>[^<]+</Version>', "<Version>$nextVersion</Version>")
+    $csprojContent = [regex]::Replace($csprojContent, '<FileVersion>[^<]+</FileVersion>', "<FileVersion>$nextVersion</FileVersion>")
+    $csprojContent = [regex]::Replace($csprojContent, '<AssemblyVersion>[^<]+</AssemblyVersion>', "<AssemblyVersion>$nextVersion</AssemblyVersion>")
+    [System.IO.File]::WriteAllText($csprojPath, $csprojContent, [System.Text.UTF8Encoding]::new($false))
+}
 
 $msiFile = Get-Item $OutputMsi
 $sizeMB = [Math]::Round($msiFile.Length / 1MB, 2)
